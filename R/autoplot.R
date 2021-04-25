@@ -5,12 +5,15 @@
 #'   specified, default is to map `predicted` to `y`, the first term to `x` and
 #'   the second term to `group`, `color` and `fill`. `conf.high`/`conf.low` are
 #'   mapped onto `ymax`/`ymin`.
-#' @param fct_rows,fct_cols Specs for the facetting of the plot. If left `NULL`
-#'   will be taken from the `facet` and `panel` columns.
+#' @param rows,cols Specs for the facetting of the plot. See `rows` and
+#'   `cols` args in `facet_grid()` Defaults to `facet` and `panel` columns.
+#'   Disable facetting by setting both to `NULL`.
 #'
 #'
 #' @export
-autoplot.ggeffects <- function(object, mapping = NULL, fct_rows = NULL, fct_cols = NULL) {
+autoplot.ggeffects <- function(object,
+                               mapping = NULL,
+                               rows = waiver(), cols = waiver()) {
 
   if (attr(object, "continuous.group")) {
     object$group <- as.numeric(as.character(object$group))
@@ -35,24 +38,22 @@ autoplot.ggeffects <- function(object, mapping = NULL, fct_rows = NULL, fct_cols
   }
 
   if (length(terms) > 2) {
-    if (is.null(fct_cols)) fct_cols <- vars(.data[[terms[3]]])
+    if (inherits(cols, "waiver")) cols <- vars(.data[[terms[3]]])
     colnames(object)[colnames(object) == "facet"] <- terms[3]
   }
 
   if (length(terms) > 3) {
-    if (is.null(fct_rows)) fct_rows <- vars(.data[[terms[4]]])
+    if (inherits(rows, "waiver")) rows <- vars(.data[[terms[4]]])
     colnames(object)[colnames(object) == "panel"] <- terms[4]
   }
 
-  out <- ggplot(object) +
+  if (inherits(rows, "waiver")) rows <- NULL
+  if (inherits(cols, "waiver")) cols <- NULL
+
+  ggplot(object) +
     plot_aes +
-    facet_grid(fct_rows, fct_cols)
-
-  if (!is.null(mapping)) {
-    out <- out + mapping
-  }
-
-  out
+    facet_grid(rows, cols) +
+    mapping
 }
 
 

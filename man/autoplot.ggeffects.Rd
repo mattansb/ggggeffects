@@ -4,7 +4,7 @@
 \alias{autoplot.ggeffects}
 \title{Create a (blank) ggplot from ggeffects}
 \usage{
-\method{autoplot}{ggeffects}(object, mapping = NULL, fct_rows = NULL, fct_cols = NULL)
+\method{autoplot}{ggeffects}(object, mapping = NULL, rows = waiver(), cols = waiver())
 }
 \arguments{
 \item{object}{A \code{ggeffects} object.}
@@ -14,8 +14,9 @@ specified, default is to map \code{predicted} to \code{y}, the first term to \co
 the second term to \code{group}, \code{color} and \code{fill}. \code{conf.high}/\code{conf.low} are
 mapped onto \code{ymax}/\code{ymin}.}
 
-\item{fct_rows, fct_cols}{Specs for the facetting of the plot. If left \code{NULL}
-will be taken from the \code{facet} and \code{panel} columns.}
+\item{rows, cols}{Specs for the facetting of the plot. See \code{rows} and
+\code{cols} args in \code{facet_grid()} Defaults to \code{facet} and \code{panel} columns.
+Disable facetting by setting both to \code{NULL}.}
 }
 \description{
 Create a (blank) ggplot from ggeffects
