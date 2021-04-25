@@ -1,14 +1,22 @@
 #' Add data to plot
 #'
+#' Add original data (`stat_raw_data()`) or residualized data
+#' (`stat_residualized_data()` for partial residual plots) to the plot.
+#'
 #' @inheritParams ggplot2::layer
-#' @param collapse.group For multilevel models, the name of the grouping variable
-#'   over which data should be aggragated prior to plotting. Can also be `TRUE`,
-#'   in which case the first grouping variable will be used.
-#' @param data Should only be `NULL`.
+#' @param collapse.group For multilevel models, the name of the random grouping
+#'   variable over which data should be aggregated prior to plotting. If `TRUE`,
+#'   the first grouping variable will be used.
+#' @param data Ignored.
+#'
+#' @section Computed variables:
+#' - The 1-to-4 terms (by their name)
+#' - `predicted` - The response / predicted outcome + residuals
+#'
 #' @export
 stat_raw_data <- function(mapping = NULL, data = NULL, geom = "point",
-                                   position = "identity", na.rm = FALSE, show.legend = NA,
-                                   inherit.aes = TRUE, collapse.group = NULL, ...) {
+                          position = "identity", na.rm = FALSE, show.legend = NA,
+                          inherit.aes = TRUE, collapse.group = NULL, ...) {
   # data must be null
   if (!is.null(data)) warning("Ignoring 'data' arg.")
 

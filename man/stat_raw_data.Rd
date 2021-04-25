@@ -35,7 +35,7 @@ stat_residualized_data(
 default), it is combined with the default mapping at the top level of the
 plot. You must supply \code{mapping} if there is no plot mapping.}
 
-\item{data}{Should only be \code{NULL}.}
+\item{data}{Ignored.}
 
 \item{geom}{The geometric object to use display the data}
 
@@ -53,10 +53,19 @@ rather than combining with them. This is most useful for helper functions
 that define both data and aesthetics and shouldn't inherit behaviour from
 the default plot specification, e.g. \code{\link[ggplot2:borders]{borders()}}.}
 
-\item{collapse.group}{For multilevel models, the name of the grouping variable
-over which data should be aggragated prior to plotting. Can also be \code{TRUE},
-in which case the first grouping variable will be used.}
+\item{collapse.group}{For multilevel models, the name of the random grouping
+variable over which data should be aggregated prior to plotting. If \code{TRUE},
+the first grouping variable will be used.}
 }
 \description{
-Add data to plot
+Add original data (\code{stat_raw_data()}) or residualized data
+(\code{stat_residualized_data()} for partial residual plots) to the plot.
 }
+\section{Computed variables}{
+
+\itemize{
+\item The 1-to-4 terms (by their name)
+\item \code{predicted} - The response / predicted outcome + residuals
+}
+}
+
