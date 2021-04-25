@@ -1,0 +1,23 @@
+Package: ggggeffects
+Type: Package
+Title: Geoms and stats for ggeffects
+Version: 0.0.1
+Description: Geoms and stats for ggeffects
+Author: person("Mattan S.", 
+               "Ben-Shachar", 
+               role = c("aut", "cre"), 
+               email = "matanshm@post.bgu.ac.il", 
+               comment = c(ORCID = "0000-0002-4287-4801",
+               Twitter = "@mattansb"))
+Maintainer: Mattan S. Ben-Shachar <matanshm@post.bgu.ac.il>
+License: GPL-3
+Depends:
+    R (>= 4.0),
+    ggeffects (>= 1.0.2),
+    ggplot2 (>= 3.3.3)
+Encoding: UTF-8
+LazyData: true
+Language: en-US
+VignetteBuilder: knitr
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
