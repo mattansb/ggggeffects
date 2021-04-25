@@ -18,16 +18,16 @@ autoplot.ggeffects <- function(object,
   if (attr(object, "continuous.group")) {
     object$group <- as.numeric(as.character(object$group))
   }
+
+  # Clean up names
   terms <- attr(object, "terms", exact = TRUE)
+  xterms <- c("x", "group", "facet", "panel")
+  for (trm in seq_along(terms)) {
+    colnames(object)[colnames(object) == xterms[trm]] <- terms[trm]
+  }
 
-  plot_aes <- aes(x = .data[[terms[1]]],
-                  y = .data[["predicted"]],
-                  ymin = .data[["conf.low"]],
-                  ymax = .data[["conf.high"]])
-  colnames(object)[colnames(object) == "x"] <- terms[1]
-
-  if (length(terms) > 1) {
-    colnames(object)[colnames(object) == "group"] <- terms[2]
+  # AES
+  if (length(terms) >= 2L) {
     plot_aes <- aes(x = .data[[terms[1]]],
                     y = .data[["predicted"]],
                     ymin = .data[["conf.low"]],
@@ -35,21 +35,31 @@ autoplot.ggeffects <- function(object,
                     group = .data[[terms[2]]],
                     color = .data[[terms[2]]],
                     fill = .data[[terms[2]]])
+  } else {
+    plot_aes <- aes(x = .data[[terms[1]]],
+                    y = .data[["predicted"]],
+                    ymin = .data[["conf.low"]],
+                    ymax = .data[["conf.high"]])
   }
 
-  if (length(terms) > 2) {
-    if (inherits(cols, "waiver")) cols <- vars(.data[[terms[3]]])
-    colnames(object)[colnames(object) == "facet"] <- terms[3]
+  # Facets
+  if (inherits(cols, "waiver")) {
+    if (length(terms) >= 3L) {
+      cols <- vars(.data[[terms[3]]])
+    } else {
+      cols <- NULL
+    }
   }
 
-  if (length(terms) > 3) {
-    if (inherits(rows, "waiver")) rows <- vars(.data[[terms[4]]])
-    colnames(object)[colnames(object) == "panel"] <- terms[4]
+  if (inherits(rows, "waiver")) {
+    if (length(terms) >= 4L) {
+      rows <- vars(.data[[terms[4]]])
+    } else {
+      rows <- NULL
+    }
   }
 
-  if (inherits(rows, "waiver")) rows <- NULL
-  if (inherits(cols, "waiver")) cols <- NULL
-
+  # Assemble
   ggplot(object) +
     plot_aes +
     facet_grid(rows, cols) +
