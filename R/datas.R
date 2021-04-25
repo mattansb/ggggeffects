@@ -1,31 +1,31 @@
 #' Add data to plot
 #'
 #' @inheritParams ggplot2::layer
-#' @param collaps.group For multilevel models, the name of the grouping variable
+#' @param collapse.group For multilevel models, the name of the grouping variable
 #'   over which data should be aggragated prior to plotting. Can also be `TRUE`,
 #'   in which case the first grouping variable will be used.
 #' @param data Should only be `NULL`.
 #' @export
 stat_raw_data <- function(mapping = NULL, data = NULL, geom = "point",
                                    position = "identity", na.rm = FALSE, show.legend = NA,
-                                   inherit.aes = TRUE, collaps.group = NULL, ...) {
+                                   inherit.aes = TRUE, collapse.group = NULL, ...) {
   # data must be null
   if (!is.null(data)) warning("Ignoring 'data' arg.")
 
   trans_data_raw <- function(data) {
-    collaps.group <- force(collaps.group)
+    collapse.group <- force(collapse.group)
     dataR <- attr(data, "rawdata", exact = TRUE)
 
     # Clean up
     dataR$predicted <- dataR$response
     dataR$response <- NULL
 
-    # Collapse ?
-    if (!is.null(collaps.group)) {
+    # collapse ?
+    if (!is.null(collapse.group)) {
       obj_name <- attr(data, "model.name", exact = TRUE)
       model <- tryCatch(get(obj_name, envir = globalenv()),
                         error = function(e) NULL)
-      dataR <- collaps_re_data(data, dataR, model, collaps_re = collaps.group)
+      dataR <- collapse_re_data(dataR, model, collapse_re = collapse.group)
     }
 
     # More cleanup
@@ -46,13 +46,13 @@ stat_raw_data <- function(mapping = NULL, data = NULL, geom = "point",
 #' @export
 stat_residualized_data <- function(mapping = NULL, data = NULL, geom = "point",
                                    position = "identity", na.rm = FALSE, show.legend = NA,
-                                   inherit.aes = TRUE, collaps.group = NULL, ...) {
+                                   inherit.aes = TRUE, collapse.group = NULL, ...) {
   # data must be null
   if (!is.null(data)) warning("Ignoring 'data' arg.")
 
   trans_data_residuals <- function(data) {
 
-    collaps.group <- force(collaps.group)
+    collapse.group <- force(collapse.group)
     obj_name <- attr(data, "model.name", exact = TRUE)
     model <- tryCatch(get(obj_name, envir = globalenv()),
                       error = function(e) NULL)
@@ -65,9 +65,9 @@ stat_residualized_data <- function(mapping = NULL, data = NULL, geom = "point",
       colnames(dataR)[colnames(dataR) == terms[trm]] <- xterms[trm]
     }
 
-    # Collapse ?
-    if (!is.null(collaps.group)) {
-      dataR <- collaps_re_data(data, dataR, model, collaps_re = collaps.group)
+    # collapse ?
+    if (!is.null(collapse.group)) {
+      dataR <- collapse_re_data(dataR, model, collapse_re = collapse.group)
     }
 
     # More cleanup
@@ -88,27 +88,34 @@ stat_residualized_data <- function(mapping = NULL, data = NULL, geom = "point",
 
 # Helpers -----------------------------------------------------------------
 
-
 #' @keywords internal
-collaps_re_data <- function(gge, data, model = NULL, collaps_re = TRUE) {
+collapse_re_data <- function(data, model = NULL, collapse_re = TRUE) {
+  if (!requireNamespace("insight")) {
+    stop("This function requires the `insight` package to work. Please install it.")
+  }
+
+  # Original data
   Xdata <- insight::get_data(model)
 
-  if (isTRUE(collaps_re)) {
-    collaps_re <- insight::find_random(model, flatten = TRUE)
+  # Find collapse_re
+  if (isTRUE(collapse_re)) {
+    collapse_re <- insight::find_random(model, flatten = TRUE)
   }
 
-  if (length(collaps_re) > 1) {
-    collaps_re <- collaps_re[1]
+  if (length(collapse_re) > 1) {
+    collapse_re <- collapse_re[1]
     warning("More than one random grouping variable found.",
-            "\nUsing `", collaps_re, "`.", call. = FALSE)
+            "\nUsing `", collapse_re, "`.", call. = FALSE)
   }
 
-  if (!collaps_re %in% colnames(Xdata)) {
-    stop("Could not find `", collaps_re, "` column.", call. = FALSE)
+  if (!collapse_re %in% colnames(Xdata)) {
+    stop("Could not find `", collapse_re, "` column.", call. = FALSE)
   }
 
-  data$random <- factor(Xdata[[collaps_re]])
+  # Add collapse_re to data
+  data$random <- factor(Xdata[[collapse_re]])
 
+  # collapse
   agg_data <- aggregate(data[["predicted"]],
                         by = data[colnames(data) != "predicted"],
                         FUN = mean)
@@ -117,6 +124,8 @@ collaps_re_data <- function(gge, data, model = NULL, collaps_re = TRUE) {
 
   return(agg_data)
 }
+
+
 
 #' @keywords internal
 restore_names <- function(data, grid) {

@@ -13,7 +13,7 @@ stat_raw_data(
   na.rm = FALSE,
   show.legend = NA,
   inherit.aes = TRUE,
-  collaps.group = NULL,
+  collapse.group = NULL,
   ...
 )
 
@@ -25,7 +25,7 @@ stat_residualized_data(
   na.rm = FALSE,
   show.legend = NA,
   inherit.aes = TRUE,
-  collaps.group = NULL,
+  collapse.group = NULL,
   ...
 )
 }
@@ -53,7 +53,7 @@ rather than combining with them. This is most useful for helper functions
 that define both data and aesthetics and shouldn't inherit behaviour from
 the default plot specification, e.g. \code{\link[ggplot2:borders]{borders()}}.}
 
-\item{collaps.group}{For multilevel models, the name of the grouping variable
+\item{collapse.group}{For multilevel models, the name of the grouping variable
 over which data should be aggragated prior to plotting. Can also be \code{TRUE},
 in which case the first grouping variable will be used.}
 }
