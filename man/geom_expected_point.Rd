@@ -113,9 +113,9 @@ upper and lower lines, \code{"upper"}/\code{"lower"} draws the respective lines 
 \description{
 For now, these are just exported and renamed:
 \itemize{
-\item \code{geom_expected_point} is \code{geom_point}
-\item \code{geom_CI_bar} is \code{geom_errorbar}
-\item \code{geom_expected_line} is \code{geom_line}
-\item \code{geom_CI_ribbon} is \code{geom_ribbon}
+\item \code{geom_expected_point} is \code{\link[=geom_point]{geom_point()}}
+\item \code{geom_CI_bar} is \code{\link[=geom_errorbar]{geom_errorbar()}}
+\item \code{geom_expected_line} is \code{\link[=geom_line]{geom_line()}}
+\item \code{geom_CI_ribbon} is \code{\link[=geom_ribbon]{geom_ribbon()}}
 }
 }
