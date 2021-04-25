@@ -4,19 +4,25 @@
 \alias{autoplot.ggeffects}
 \title{Create a (blank) ggplot from ggeffects}
 \usage{
-\method{autoplot}{ggeffects}(object, mapping = NULL, rows = waiver(), cols = waiver())
+\method{autoplot}{ggeffects}(object, mapping = NULL, rows = waiver(), cols = waiver(), ...)
 }
 \arguments{
 \item{object}{A \code{ggeffects} object.}
 
-\item{mapping}{Default list of aesthetic mappings to use for plot. If not
-specified, default is to map \code{predicted} to \code{y}, the first term to \code{x} and
-the second term to \code{group}, \code{color} and \code{fill}. \code{conf.high}/\code{conf.low} are
-mapped onto \code{ymax}/\code{ymin}.}
+\item{mapping}{List of aesthetic mappings to use for plot. Defaults (which
+can be (individually) overridden) are:
+\itemize{
+\item \code{predicted} is mapped to \code{y}
+\item first term is mapped to \code{x}
+\item second term is mapped to \code{group}, \code{color} and \code{fill}
+\item \code{conf.high}/\code{conf.low} are mapped onto \code{ymax}/\code{ymin}
+}}
 
-\item{rows, cols}{Specs for the facetting of the plot. See \code{rows} and
-\code{cols} args in \code{facet_grid()} Defaults to \code{facet} and \code{panel} columns.
+\item{cols, rows}{Specs for the facetting of the plot (See \code{cols} and \code{rows}
+args in \code{\link[=facet_grid]{facet_grid()}}). Defaults to third and forth terms, respectively.
 Disable facetting by setting both to \code{NULL}.}
+
+\item{...}{Args passed to \code{\link[=facet_grid]{facet_grid()}}, sush as \code{labeller}, etc.}
 }
 \description{
 Create a (blank) ggplot from ggeffects

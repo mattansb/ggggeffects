@@ -1,32 +1,34 @@
 #' Create a (blank) ggplot from ggeffects
 #'
 #' @param object A `ggeffects` object.
-#' @param mapping Default list of aesthetic mappings to use for plot. If not
-#'   specified, default is to map `predicted` to `y`, the first term to `x` and
-#'   the second term to `group`, `color` and `fill`. `conf.high`/`conf.low` are
-#'   mapped onto `ymax`/`ymin`.
-#' @param rows,cols Specs for the facetting of the plot. See `rows` and
-#'   `cols` args in `facet_grid()` Defaults to `facet` and `panel` columns.
+#' @param mapping List of aesthetic mappings to use for plot. Defaults (which
+#'   can be (individually) overridden) are:
+#' - `predicted` is mapped to `y`
+#' - first term is mapped to `x`
+#' - second term is mapped to `group`, `color` and `fill`
+#' - `conf.high`/`conf.low` are mapped onto `ymax`/`ymin`
+#' @param cols,rows Specs for the facetting of the plot (See `cols` and `rows`
+#'   args in [facet_grid()]). Defaults to third and forth terms, respectively.
 #'   Disable facetting by setting both to `NULL`.
-#'
+#' @param ... Args passed to [facet_grid()], sush as `labeller`, etc.
 #'
 #' @export
 autoplot.ggeffects <- function(object,
                                mapping = NULL,
-                               rows = waiver(), cols = waiver()) {
-
+                               rows = waiver(), cols = waiver(),
+                               ...) {
+  # Clean up data ----
   if (attr(object, "continuous.group")) {
     object$group <- as.numeric(as.character(object$group))
   }
 
-  # Clean up names
   terms <- attr(object, "terms", exact = TRUE)
   xterms <- c("x", "group", "facet", "panel")
   for (trm in seq_along(terms)) {
     colnames(object)[colnames(object) == xterms[trm]] <- terms[trm]
   }
 
-  # AES
+  # AES ----
   if (length(terms) >= 2L) {
     plot_aes <- aes(x = .data[[terms[1]]],
                     y = .data[["predicted"]],
@@ -42,7 +44,7 @@ autoplot.ggeffects <- function(object,
                     ymax = .data[["conf.high"]])
   }
 
-  # Facets
+  # Facets ----
   if (inherits(cols, "waiver")) {
     if (length(terms) >= 3L) {
       cols <- vars(.data[[terms[3]]])
@@ -59,10 +61,10 @@ autoplot.ggeffects <- function(object,
     }
   }
 
-  # Assemble
-  ggplot(object) +
+  # Assemble ----
+  ggplot(data = object) +
     plot_aes +
-    facet_grid(rows, cols) +
+    facet_grid(rows = rows, cols = cols, ...) +
     mapping
 }
 
