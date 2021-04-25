@@ -54,15 +54,20 @@ autoplot(gge) +
 
 The default plot is better looking than the ugly `ggplot2` default,
 however `ggggeffects` is fully customisable, as would be expected (also
-not that the `am` is retained as a numeric variable):
+note that the `am` is retained as a numeric variable):
 
 ``` r
-autoplot(gge, aes(color = factor(am), fill = after_scale(color)),
-         cols = vars(am)) +
+autoplot(
+  gge, 
+  aes(color = factor(am), fill = after_scale(color)),
+  cols = vars(am), 
+  labeller = labeller(am = as_labeller(c("0" = "Automatic", "1" = "Manual")))
+) +
   geom_CI_bar(width = .3, color = "black", position = position_dodge(0.3)) +
-  geom_expected_point(size = 2, position = position_dodge(0.3)) +
+  geom_expected_point(size = 3, position = position_dodge(0.3)) +
+  scale_color_brewer(NULL, labels = c("Automatic", "Manual"), type = "qual") +
   theme_bw() +
-  labs(color = "am")
+  labs(x = "No. Cylinders", y = "Miles/Gallon")
 ```
 
 ![](README_files/figure-gfm/custom1-1.png)<!-- -->
@@ -72,12 +77,14 @@ Here is another example, with a continuous variable on x:
 ``` r
 gge <- ggpredict(fit, c("disp", "hp", "am"))
 
-(p <- autoplot(gge) +
-  geom_CI_ribbon(color = NA, alpha = 0.2) +
-  geom_expected_line() +
-  scale_color_distiller(type = "div", palette = 7, 
-                        aesthetics = c("color", "fill")) +
-  theme_bw())
+(p <- autoplot(gge, labeller = labeller(am = as_labeller(c("0" = "Automatic", "1" = "Manual")))) +
+    geom_CI_ribbon(color = NA, alpha = 0.2) +
+    geom_expected_line() +
+    scale_color_distiller("Horsepower", 
+                          type = "seq", palette = 8, direction = 1,
+                          aesthetics = c("color", "fill")) +
+    theme_bw() +
+    labs(y = "Miles/Gallon", x = "Displacement"))
 ```
 
 ![](README_files/figure-gfm/custom2-1.png)<!-- -->
@@ -88,7 +95,7 @@ We can use `stat_raw_data` to add the raw data to the plot! It’s so
 simple!
 
 ``` r
-p + stat_raw_data()
+p + stat_raw_data(shape = 21, color = "black")
 ```
 
 ![](README_files/figure-gfm/with_data-1.png)<!-- -->
@@ -97,7 +104,7 @@ We can also create partial residual plots with
 `stat_residualized_data()`:
 
 ``` r
-p + stat_residualized_data()
+p + stat_residualized_data(shape = 21, color = "black")
 ```
 
 ![](README_files/figure-gfm/with_residuals-1.png)<!-- -->
@@ -106,10 +113,12 @@ We can even plot them side by side:
 
 ``` r
 p +
-  stat_raw_data(aes(shape = "raw"), size = 2, alpha = 0.6) +
-  stat_residualized_data(aes(shape = "residuals"), size = 2,
+  stat_raw_data(aes(shape = "Raw"), 
+                size = 2, alpha = 0.6) +
+  stat_residualized_data(aes(shape = "Residualized"), 
+                         size = 2,
                          position = position_nudge(x = 10)) +
-  labs(shape = "Data type")
+  scale_shape_manual("Data", values = c(1, 16))
 ```
 
 ![](README_files/figure-gfm/with_both-1.png)<!-- -->
@@ -119,18 +128,58 @@ p +
 We can also plot bi-variate raster plots:
 
 ``` r
-gge <- ggpredict(fit, c("disp [n=10]", "hp [n=10]", "am"))
+mod <- lm(Volume ~ poly(Girth, 3) * Height, data = trees)
 
-autoplot(gge, aes(x = disp, y = hp,
+gge <- ggpredict(mod, c("Girth [n=25]", "Height [n=25]"))
+
+autoplot(gge, aes(x = Girth, y = Height,
+                  group = NULL, # need to override
                   color = predicted, fill = predicted)) +
   geom_raster() +
-  # geom_contour(aes(z = predicted)) +
+  geom_contour(aes(z = predicted),
+               color = "white", linetype = "dashed") +
   stat_raw_data(shape = 21, color = "white", size = 2) +
   scale_color_viridis_c(aesthetics = c("color", "fill")) +
   theme_minimal()
 ```
 
 ![](README_files/figure-gfm/raster_2Dplot-1.png)<!-- -->
+
+This is especially useful for plotting multi-variate smooth terms in
+GAMs:
+
+``` r
+library(mgcv)
+
+eg <- gamSim(2, n = 5000, scale = .5)
+```
+
+    ## Bivariate smoothing example
+
+``` r
+b5 <- gam(y ~ s(x, z, k = 20), data = eg$data)
+
+plot(b5)
+```
+
+![](README_files/figure-gfm/raster_GAM-1.png)<!-- -->
+
+``` r
+# Compare to
+
+gge <- ggpredict(b5, c("x [n=45]", "z [n=45]"))
+
+autoplot(gge, aes(x = x, y = z, 
+                  group = NULL, # need to override
+                  color = predicted, fill = predicted)) +
+  geom_raster() +
+  geom_contour(aes(z = predicted),
+               color = "white", linetype = "dashed") +
+  scale_color_viridis_c(aesthetics = c("color", "fill")) +
+  theme_minimal()
+```
+
+![](README_files/figure-gfm/raster_GAM-2.png)<!-- -->
 
 ### Collapsing Across Random Variables
 
@@ -167,8 +216,10 @@ gge <- ggemmeans(m, c("congruency", "condition"))
 ``` r
 p <- autoplot(gge) +
   geom_CI_bar(width = .3, color = "black", position = position_dodge(0.7)) +
+  geom_expected_line(position = position_dodge(0.7)) +
   geom_expected_point(shape = 21, color = "black", 
-                      position = position_dodge(0.7), size = 3)
+                      position = position_dodge(0.7), size = 3) +
+  theme_classic()
 ```
 
 To collapse across a grouping variable, we set `collapse.group` to
@@ -212,7 +263,7 @@ p +
 
 We can do the same for residualized data, or with a continuous variable
 on x (though this only really works nicely if the covariate is on level
-2+):
+2+) - or both:
 
 ``` r
 gge <- ggemmeans(m, c("level2_cov [all]", "congruency", "condition"))
@@ -220,7 +271,8 @@ gge <- ggemmeans(m, c("level2_cov [all]", "congruency", "condition"))
 autoplot(gge) +
   geom_CI_ribbon(color = NA, alpha = 0.1) +
   geom_expected_line() +
-  stat_residualized_data(collapse.group = "pno", alpha = 0.4)
+  stat_residualized_data(collapse.group = "pno", alpha = 0.4) +
+  theme_classic()
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
+![](README_files/figure-gfm/collapse_rez_contX-1.png)<!-- -->
