@@ -67,8 +67,10 @@ autoplot(
   cols = vars(am), 
   labeller = labeller(am = as_labeller(c("0" = "Automatic", "1" = "Manual")))
 ) +
+  # Expected + CI
   geom_CI_bar(width = .3, color = "black", position = position_dodge(0.3)) +
   geom_expected_point(size = 3, position = position_dodge(0.3)) +
+  # Scales and theme
   scale_color_brewer(NULL, labels = c("Automatic", "Manual"), type = "qual") +
   theme_bw() +
   labs(x = "No. Cylinders", y = "Miles/Gallon")
@@ -77,13 +79,15 @@ autoplot(
 Here is another example, with a continuous variable on x:
 
 ```{r custom2}
-gge <- ggpredict(fit, c("disp", "hp", "am"))
+gge <- ggpredict(fit, c("disp [all]", "hp", "am"))
 
 (p <- autoplot(gge, labeller = labeller(am = as_labeller(c("0" = "Automatic", "1" = "Manual")))) +
+    # Expected + CI
     geom_CI_ribbon(color = NA, alpha = 0.2) +
     geom_expected_line() +
-    scale_color_distiller("Horsepower", 
-                          type = "seq", palette = 8, direction = 1,
+    # Scales and theme
+    scale_color_viridis_c("Horsepower", 
+                          option = "C", end = 0.8, 
                           aesthetics = c("color", "fill")) +
     theme_bw() +
     labs(y = "Miles/Gallon", x = "Displacement"))
@@ -91,27 +95,71 @@ gge <- ggpredict(fit, c("disp", "hp", "am"))
 
 ### Adding Raw/Residualized Data
 
-We can use `stat_raw_data` to add the raw data to the plot! It's so simple!
+We can use `layer_fit_data()` to add the raw data to the plot! It's so simple!
 
 ```{r with_data}
-p + stat_raw_data(shape = 21, color = "black")
+p + layer_fit_data(shape = 21, color = "black")
 ```
 
-We can also create partial residual plots with `stat_residualized_data()`:
+We can also create partial residual plots with `layer_fit_data(residualize = TRUE)`:
 
 ```{r with_residuals}
-p + stat_residualized_data(shape = 21, color = "black")
+p + layer_fit_data(residualize = TRUE, shape = 21, color = "black")
 ```
 
 We can even plot them side by side:
 ```{r with_both}
 p +
-  stat_raw_data(aes(shape = "Raw"), 
-                size = 2, alpha = 0.6) +
-  stat_residualized_data(aes(shape = "Residualized"), 
-                         size = 2,
-                         position = position_nudge(x = 10)) +
-  scale_shape_manual("Data", values = c(1, 16))
+  # Data
+  layer_fit_data(aes(shape = "Raw"), 
+                 size = 2) +
+  layer_fit_data(aes(shape = "Residualized"), residualize = TRUE,
+                 size = 3,
+                 position = position_nudge(x = 10)) +
+  # Scales and theme
+  scale_shape_manual(NULL, values = c(4, 16))
+```
+
+These can also be used with other stats:
+
+```{r more_stats_geoms, warning=FALSE}
+gge <- ggpredict(fit, terms = c("disp [100:500, by = 70]", "cyl"))
+
+autoplot(gge, cols = vars(cyl),
+         labeller = labeller(cyl = as_labeller(c("4" = "Cyl: 4", "6" = 6, "8" = 8)))) + 
+  # Expected + CI
+  geom_CI_ribbon(color = NA, alpha = 0.4) + 
+  geom_expected_line() +
+  # Boxplot of partial residuals
+  layer_fit_data(aes(group = interaction(disp, cyl)), 
+                 residualize = TRUE,
+                 fill = NA, color = "black",
+                 geom = "boxplot", stat = "boxplot") + # <<<<
+  # Scales and theme
+  scale_color_viridis_d("No. Cylinders", end = 0.5, aesthetics = c("color", "fill")) + 
+  labs(y = "Miles/Gallon", x = "Displacement") + 
+  theme_ggeffects()
+
+
+gge <- ggpredict(fit, terms = c("hp [all]", "am"))
+
+autoplot(gge, aes(color = factor(am), fill = after_scale(color)), 
+         cols = vars(am),
+         labeller = labeller(am = as_labeller(c("0" = "Automatic", "1" = "Manual")))) + 
+  # Expected
+  geom_expected_line(size = 1) +
+  # Partial residuals
+  layer_fit_data(residualize = TRUE, alpha = 0.6) + 
+  # Smoothed line
+  layer_fit_data(residualize = TRUE, 
+                 geom = "line", stat = "smooth",  # <<<<
+                 linetype = "dashed", color = "red") +
+  # Scales and theme
+  scale_color_brewer("Transmission", type = "qual", 
+                     labels = c("Automatic", "Manual"),
+                     aesthetics = c("color", "fill")) +
+  theme_bw() +
+  labs(y = "Miles/Gallon", x = "Horsepower")
 ```
 
 ### Raster Plots
@@ -124,14 +172,17 @@ mod <- lm(Volume ~ poly(Girth, 3) * Height, data = trees)
 gge <- ggpredict(mod, c("Girth [n=25]", "Height [n=25]"))
 
 autoplot(gge, aes(x = Girth, y = Height,
-                  group = NULL, # need to override
-                  color = predicted, fill = predicted)) +
+                  color = NULL, group = NULL, # need to override
+                  fill = predicted)) +
+  # Expected values
   geom_raster() +
   geom_contour(aes(z = predicted),
-               color = "white", linetype = "dashed") +
-  stat_raw_data(shape = 21, color = "white", size = 2) +
-  scale_color_viridis_c(aesthetics = c("color", "fill")) +
-  theme_minimal()
+               color = "white") +
+  # Data
+  layer_fit_data(shape = 21, color = "white", size = 2) +
+  # Scales and theme
+  scale_fill_viridis_c("Volume", option = "A") +
+  theme_bw()
 ```
 
 This is especially useful for plotting multi-variate smooth terms in GAMs:
@@ -150,12 +201,14 @@ plot(b5)
 gge <- ggpredict(b5, c("x [n=45]", "z [n=45]"))
 
 autoplot(gge, aes(x = x, y = z, 
-                  group = NULL, # need to override
-                  color = predicted, fill = predicted)) +
+                  color = NULL, group = NULL, # need to override
+                  fill = predicted)) +
+  # Expected values
   geom_raster() +
   geom_contour(aes(z = predicted),
-               color = "white", linetype = "dashed") +
-  scale_color_viridis_c(aesthetics = c("color", "fill")) +
+               color = "white") +
+  # Scales and theme
+  scale_fill_viridis_c("y", option = "B") +
   theme_minimal()
 ```
 
@@ -191,40 +244,47 @@ gge <- ggemmeans(m, c("congruency", "condition"))
 
 
 p <- autoplot(gge) +
-  geom_CI_bar(width = .3, color = "black", position = position_dodge(0.7)) +
+  # Expected values + CI
+  geom_CI_bar(width = .2, color = "black", position = position_dodge(0.7)) +
   geom_expected_line(position = position_dodge(0.7)) +
-  geom_expected_point(shape = 21, color = "black", 
+  geom_expected_point(color = "black", 
                       position = position_dodge(0.7), size = 3) +
-  theme_classic()
+  # Scales and theme
+  scale_color_brewer(type = "qual", palette = 2, aesthetics = c("color", "fill")) +
+  theme_classic() +
+  labs(y = "rt")
 ```
 
 To collapse across a grouping variable, we set `collapse.group` to `TRUE`:
 
 ```{r collapsTRUE}
 p +
-  stat_raw_data(collapse.group = TRUE, 
-                position = position_jitterdodge(0.1,,0.7), alpha = 0.3)
+  layer_fit_data(collapse.group = TRUE, 
+                 position = position_jitterdodge(0.1,,0.7), alpha = 0.3)
 ```
 
 Or specify by name:
 
 ```{r collapse_trialnum}
 p +
-  stat_raw_data(collapse.group = "trialnum", 
-                position = position_jitterdodge(0.1,,0.7), alpha = 0.3)
+  # Data
+  layer_fit_data(collapse.group = "trialnum", 
+                 position = position_jitterdodge(0.1,,0.7), alpha = 0.3)
 ```
 
 We can combine and mix as we please:
 
 ```{r collapse_both}
 p +
-  stat_raw_data(collapse.group = "pno", 
-                aes(shape = "pno", x = as.numeric(congruency) + .05),
-                position = position_jitterdodge(0.1,,0.7), alpha = 0.3) +
-  stat_raw_data(collapse.group = "trialnum", 
-                aes(shape = "trialnum", x = as.numeric(congruency) - .05),
-                position = position_jitterdodge(0.1,,0.7), alpha = 0.3) +
-  scale_shape_manual("Random var", values = c(16, 8))
+  # Data
+  layer_fit_data(collapse.group = "pno", 
+                 aes(shape = "pno", x = as.numeric(congruency) + .05),
+                 position = position_jitterdodge(0.1,,0.7), alpha = 0.3) +
+  layer_fit_data(collapse.group = "trialnum", 
+                 aes(shape = "trialnum", x = as.numeric(congruency) - .05),
+                 position = position_jitterdodge(0.1,,0.7), alpha = 0.3) +
+  # Scales and theme
+  scale_shape_manual("Random var", values = c(21, 22))
 ```
 
 
@@ -234,9 +294,14 @@ We can do the same for residualized data, or with a continuous variable on x (th
 gge <- ggemmeans(m, c("level2_cov [all]", "congruency", "condition"))
 
 autoplot(gge) +
+  # Expected values + CI
   geom_CI_ribbon(color = NA, alpha = 0.1) +
   geom_expected_line() +
-  stat_residualized_data(collapse.group = "pno", alpha = 0.4) +
+  # Data
+  layer_fit_data(collapse.group = "pno", residualize = TRUE,
+                 alpha = 0.4, shape = 16) +
+  # Scales and theme
+  scale_color_viridis_d(end = 0.4, aesthetics = c("color", "fill")) +
   theme_classic()
 ```
 

@@ -30,41 +30,33 @@ autoplot.ggeffects <- function(object,
 
   # AES ----
   if (length(terms) >= 2L) {
-    plot_aes <- aes(x = .data[[terms[1]]],
-                    y = .data[["predicted"]],
-                    ymin = .data[["conf.low"]],
-                    ymax = .data[["conf.high"]],
-                    group = .data[[terms[2]]],
-                    color = .data[[terms[2]]],
-                    fill = .data[[terms[2]]])
+    plot_aes <- ggplot2::aes(x = .data[[terms[1]]],
+                             y = .data[["predicted"]],
+                             ymin = .data[["conf.low"]],
+                             ymax = .data[["conf.high"]],
+                             group = .data[[terms[2]]],
+                             color = .data[[terms[2]]],
+                             fill = .data[[terms[2]]])
   } else {
-    plot_aes <- aes(x = .data[[terms[1]]],
-                    y = .data[["predicted"]],
-                    ymin = .data[["conf.low"]],
-                    ymax = .data[["conf.high"]])
+    plot_aes <- ggplot2::aes(x = .data[[terms[1]]],
+                             y = .data[["predicted"]],
+                             ymin = .data[["conf.low"]],
+                             ymax = .data[["conf.high"]])
   }
 
   # Facets ----
   if (inherits(cols, "waiver")) {
-    if (length(terms) >= 3L) {
-      cols <- vars(.data[[terms[3]]])
-    } else {
-      cols <- NULL
-    }
+    cols <- if (length(terms) >= 3L) ggplot2::vars(.data[[terms[3]]])
   }
 
   if (inherits(rows, "waiver")) {
-    if (length(terms) >= 4L) {
-      rows <- vars(.data[[terms[4]]])
-    } else {
-      rows <- NULL
-    }
+    rows <- if (length(terms) >= 4L) ggplot2::vars(.data[[terms[4]]])
   }
 
   # Assemble ----
-  ggplot(data = object) +
+  ggplot2::ggplot(data = object) +
     plot_aes +
-    facet_grid(rows = rows, cols = cols, ...) +
+    ggplot2::facet_grid(rows = rows, cols = cols, ...) +
     mapping
 }
 
