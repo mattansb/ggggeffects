@@ -64,7 +64,7 @@ autoplot(
   labeller = labeller(am = as_labeller(c("0" = "Automatic", "1" = "Manual")))
 ) +
   # Expected + CI
-  geom_CI_bar(width = .3, color = "black", position = position_dodge(0.3)) +
+  geom_CI_bar(type = "linerange", color = "black", position = position_dodge(0.3)) +
   geom_expected_point(size = 3, position = position_dodge(0.3)) +
   # Scales and theme
   scale_color_brewer(NULL, labels = c("Automatic", "Manual"), type = "qual") +

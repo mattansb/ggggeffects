@@ -22,6 +22,7 @@ geom_CI_bar(
   mapping = NULL,
   data = NULL,
   stat = "identity",
+  type = c("errorbar", "linerange", "pointrange", "crossbar"),
   position = "identity",
   ...,
   na.rm = FALSE,
@@ -101,6 +102,8 @@ rather than combining with them. This is most useful for helper functions
 that define both data and aesthetics and shouldn't inherit behaviour from
 the default plot specification, e.g. \code{\link[ggplot2:borders]{borders()}}.}
 
+\item{type}{Which type of interval geom to use.}
+
 \item{orientation}{The orientation of the layer. The default (\code{NA})
 automatically determines the orientation from the aesthetic mapping. In the
 rare event that this fails it can be given explicitly by setting \code{orientation}
@@ -114,7 +117,7 @@ upper and lower lines, \code{"upper"}/\code{"lower"} draws the respective lines 
 For now, these are just exported and renamed:
 \itemize{
 \item \code{geom_expected_point} is \code{\link[=geom_point]{geom_point()}}
-\item \code{geom_CI_bar} is \code{\link[=geom_errorbar]{geom_errorbar()}}
+\item \code{geom_CI_bar} is \code{\link[=geom_errorbar]{geom_errorbar()}} / \code{\link[=geom_linerange]{geom_linerange()}} / \code{\link[=geom_pointrange]{geom_pointrange()}} / \code{\link[=geom_crossbar]{geom_crossbar()}}
 \item \code{geom_expected_line} is \code{\link[=geom_line]{geom_line()}}
 \item \code{geom_CI_ribbon} is \code{\link[=geom_ribbon]{geom_ribbon()}}
 }
