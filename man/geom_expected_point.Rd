@@ -119,6 +119,6 @@ For now, these are just exported and renamed:
 \item \code{geom_expected_point} is \code{\link[=geom_point]{geom_point()}}
 \item \code{geom_CI_bar} is \code{\link[=geom_errorbar]{geom_errorbar()}} / \code{\link[=geom_linerange]{geom_linerange()}} / \code{\link[=geom_pointrange]{geom_pointrange()}} / \code{\link[=geom_crossbar]{geom_crossbar()}}
 \item \code{geom_expected_line} is \code{\link[=geom_line]{geom_line()}}
-\item \code{geom_CI_ribbon} is \code{\link[=geom_ribbon]{geom_ribbon()}}
+\item \code{geom_CI_ribbon} is \code{\link[=geom_ribbon]{geom_ribbon()}} with \code{alpha = 0.25} and no outline (\code{color = NA}) - both can be overriden.
 }
 }

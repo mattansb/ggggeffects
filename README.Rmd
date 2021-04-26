@@ -17,6 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(dplyr)
 library(mgcv)
+set.seed(114433)
 ```
 
 # `ggggeffects`
@@ -81,9 +82,23 @@ Here is another example, with a continuous variable on x:
 ```{r custom2}
 gge <- ggpredict(fit, c("disp [all]", "hp", "am"))
 
+autoplot(
+  gge,
+  aes(color = NULL, fill = NULL),
+  rows = vars(hp),
+  labeller = labeller(am = as_labeller(c("0" = "Automatic", "1" = "Manual")),
+                      hp = label_both)
+) +
+  # Expected + CI
+  geom_CI_ribbon(fill = NA, color = "black", linetype = "dashed") +
+  geom_expected_line() +
+  theme_bw() +
+  labs(y = "Miles/Gallon", x = "Displacement")
+
+
 (p <- autoplot(gge, labeller = labeller(am = as_labeller(c("0" = "Automatic", "1" = "Manual")))) +
     # Expected + CI
-    geom_CI_ribbon(color = NA, alpha = 0.2) +
+    geom_CI_ribbon() +
     geom_expected_line() +
     # Scales and theme
     scale_color_viridis_c("Horsepower", 
@@ -128,7 +143,7 @@ gge <- ggpredict(fit, terms = c("disp [100:500, by = 70]", "cyl"))
 autoplot(gge, cols = vars(cyl),
          labeller = labeller(cyl = as_labeller(c("4" = "Cyl: 4", "6" = 6, "8" = 8)))) + 
   # Expected + CI
-  geom_CI_ribbon(color = NA, alpha = 0.4) + 
+  geom_CI_ribbon() + 
   geom_expected_line() +
   # Boxplot of partial residuals
   layer_fit_data(aes(group = interaction(disp, cyl)), 
@@ -295,7 +310,7 @@ gge <- ggemmeans(m, c("level2_cov [all]", "congruency", "condition"))
 
 autoplot(gge) +
   # Expected values + CI
-  geom_CI_ribbon(color = NA, alpha = 0.1) +
+  geom_CI_ribbon() +
   geom_expected_line() +
   # Data
   layer_fit_data(collapse.group = "pno", residualize = TRUE,
