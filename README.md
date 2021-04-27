@@ -247,12 +247,19 @@ gge <- ggpredict(b5, c("x [n=45]", "z [n=45]"))
 autoplot(gge, aes(x = x, y = z, 
                   color = NULL, group = NULL, # need to override
                   fill = predicted)) +
-  # Expected values
+  # Expected values + CI
   geom_raster() +
-  geom_contour(aes(z = predicted),
-               color = "white") +
+  geom_contour(aes(z = predicted), color = "white", size = 1, 
+               breaks = seq(0, 0.6, by = 0.1)) +
+  geom_contour(aes(z = predicted - std.error, color = "+1SE"),
+               linetype = "dashed", 
+               breaks = seq(0, 0.6, by = 0.1)) +
+  geom_contour(aes(z = predicted + std.error, color = "-1SE"),
+               linetype = "dashed", 
+               breaks = seq(0, 0.6, by = 0.1)) +
   # Scales and theme
   scale_fill_viridis_c("y", option = "B") +
+  scale_color_manual(NULL, values = c("red", "green")) + 
   theme_minimal()
 ```
 
