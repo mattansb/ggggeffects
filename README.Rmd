@@ -101,9 +101,10 @@ autoplot(
     geom_CI_ribbon() +
     geom_expected_line() +
     # Scales and theme
-    scale_color_viridis_c("Horsepower", 
-                          option = "C", end = 0.8, 
-                          aesthetics = c("color", "fill")) +
+    scale_color_binned("Horsepower", 
+                       n.breaks = 10,
+                       type = "viridis",  option = "C", end = 0.8, 
+                       aesthetics = c("color", "fill")) +
     theme_bw() +
     labs(y = "Miles/Gallon", x = "Displacement"))
 ```
