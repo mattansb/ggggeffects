@@ -2,10 +2,12 @@
 # `ggggeffects`
 
 The goal of `ggggeffects` is to allow for a `ggplot2` syntax for the
-actual plotting of the data-grid provided by `ggeffects`.
+actual plotting of the data-grid provided by
+[`ggeffects`](https://strengejacke.github.io/ggeffects).
 
-I built this because I love `ggeffects`, but I wanted more control over
-the plotting.
+I built this because I love
+[`ggeffects`](https://strengejacke.github.io/ggeffects), but I wanted
+more control over the plotting.
 
 ``` r
 library(ggggeffects)
