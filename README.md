@@ -15,8 +15,6 @@ library(ggggeffects)
 
     ## Loading required package: ggeffects
 
-    ## Warning: package 'ggeffects' was built under R version 4.0.5
-
     ## Loading required package: ggplot2
 
 ## Installation
@@ -125,10 +123,10 @@ p + layer_fit_data(shape = 21, color = "black")
 ![](README_files/figure-gfm/with_data-1.png)<!-- -->
 
 We can also create partial residual plots with
-`layer_fit_data(residualize = TRUE)`:
+`layer_fit_data(residuals = TRUE)`:
 
 ``` r
-p + layer_fit_data(residualize = TRUE, shape = 21, color = "black")
+p + layer_fit_data(residuals = TRUE, shape = 21, color = "black")
 ```
 
 ![](README_files/figure-gfm/with_residuals-1.png)<!-- -->
@@ -140,7 +138,7 @@ p +
   # Data
   layer_fit_data(aes(shape = "Raw"), 
                  size = 2) +
-  layer_fit_data(aes(shape = "Residualized"), residualize = TRUE,
+  layer_fit_data(aes(shape = "Residualized"), residuals = TRUE,
                  size = 3,
                  position = position_nudge(x = 10)) +
   # Scales and theme
@@ -161,7 +159,7 @@ autoplot(gge, cols = vars(cyl),
   geom_expected_line() +
   # Boxplot of partial residuals
   layer_fit_data(aes(group = interaction(disp, cyl)), 
-                 residualize = TRUE,
+                 residuals = TRUE,
                  fill = NA, color = "black",
                  geom = "boxplot", stat = "boxplot") + # <<<<
   # Scales and theme
@@ -181,9 +179,9 @@ autoplot(gge, aes(color = factor(am), fill = after_scale(color)),
   # Expected
   geom_expected_line(size = 1) +
   # Partial residuals
-  layer_fit_data(residualize = TRUE, alpha = 0.6) + 
+  layer_fit_data(residuals = TRUE, alpha = 0.6) + 
   # Smoothed line
-  layer_fit_data(residualize = TRUE, 
+  layer_fit_data(residuals = TRUE, 
                  geom = "line", stat = "smooth",  # <<<<
                  linetype = "dashed", color = "red") +
   # Scales and theme
@@ -313,17 +311,16 @@ p <- autoplot(gge) +
   labs(y = "rt")
 ```
 
-To collapse across a grouping variable, we set `collapse.group` to
-`TRUE`:
+To collapse across a grouping variable, we set `collapse.by` to `TRUE`:
 
 ``` r
 p +
-  layer_fit_data(collapse.group = TRUE, 
+  layer_fit_data(collapse.by = TRUE, 
                  position = position_jitterdodge(0.1,,0.7), alpha = 0.3)
 ```
 
     ## Warning: More than one random grouping variable found.
-    ## Using `pno`.
+    ##   Using `pno`.
 
 ![](README_files/figure-gfm/collapsTRUE-1.png)<!-- -->
 
@@ -332,7 +329,7 @@ Or specify by name:
 ``` r
 p +
   # Data
-  layer_fit_data(collapse.group = "trialnum", 
+  layer_fit_data(collapse.by = "trialnum", 
                  position = position_jitterdodge(0.1,,0.7), alpha = 0.3)
 ```
 
@@ -343,10 +340,10 @@ We can combine and mix as we please:
 ``` r
 p +
   # Data
-  layer_fit_data(collapse.group = "pno", 
+  layer_fit_data(collapse.by = "pno", 
                  aes(shape = "pno", x = as.numeric(congruency) + .05),
                  position = position_jitterdodge(0.1,,0.7), alpha = 0.3) +
-  layer_fit_data(collapse.group = "trialnum", 
+  layer_fit_data(collapse.by = "trialnum", 
                  aes(shape = "trialnum", x = as.numeric(congruency) - .05),
                  position = position_jitterdodge(0.1,,0.7), alpha = 0.3) +
   # Scales and theme
@@ -367,7 +364,7 @@ autoplot(gge) +
   geom_CI_ribbon() +
   geom_expected_line() +
   # Data
-  layer_fit_data(collapse.group = "pno", residualize = TRUE,
+  layer_fit_data(collapse.by = "pno", residuals = TRUE,
                  alpha = 0.4, shape = 16) +
   # Scales and theme
   scale_color_viridis_d(end = 0.4, aesthetics = c("color", "fill")) +

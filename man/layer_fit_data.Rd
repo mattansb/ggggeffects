@@ -12,8 +12,8 @@ layer_fit_data(
   na.rm = FALSE,
   show.legend = NA,
   inherit.aes = TRUE,
-  residualize = FALSE,
-  collapse.group = NULL,
+  residuals = FALSE,
+  collapse.by = NULL,
   ...
 )
 }
@@ -42,18 +42,18 @@ rather than combining with them. This is most useful for helper functions
 that define both data and aesthetics and shouldn't inherit behaviour from
 the default plot specification, e.g. \code{\link[ggplot2:borders]{borders()}}.}
 
-\item{residualize}{Return partially residualized data instead of the raw
+\item{residuals}{Return partially residualized data instead of the raw
 data?}
 
-\item{collapse.group}{For multilevel models, the name of the random grouping
+\item{collapse.by}{For multilevel models, the name of the random grouping
 variable over which data should be aggregated prior to plotting. If \code{TRUE},
 the first grouping variable will be used.}
 }
 \description{
 Add the data used to fit the model on which the \code{ggeffects} grid is based.
 Data can be residualized (with \code{\link[=residualize_over_grid]{residualize_over_grid()}}) for \emph{partial
-residual plots} and/or collapsed across a grouping variable. See
-\code{\link[=extract_fit_data]{extract_fit_data()}}.
+residual plots} and/or collapsed across a grouping variable (with
+\code{\link[=collapse_by_group]{collapse_by_group()}}).
 }
 \section{Computed variables}{
 
@@ -63,6 +63,3 @@ residual plots} and/or collapsed across a grouping variable. See
 }
 }
 
-\seealso{
-\code{\link[=extract_fit_data]{extract_fit_data()}}
-}
