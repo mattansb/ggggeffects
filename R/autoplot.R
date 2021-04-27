@@ -29,19 +29,21 @@ autoplot.ggeffects <- function(object,
   }
 
   # AES ----
+  .data <- NULL
+  plot_aes <- list()
+  plot_aes[[1]] <- ggplot2::aes(x = .data[[terms[1]]],
+                                y = .data[["predicted"]],
+                                ymin = .data[["conf.low"]],
+                                ymax = .data[["conf.high"]])
+
   if (length(terms) >= 2L) {
-    plot_aes <- ggplot2::aes(x = .data[[terms[1]]],
-                             y = .data[["predicted"]],
-                             ymin = .data[["conf.low"]],
-                             ymax = .data[["conf.high"]],
-                             group = .data[[terms[2]]],
-                             color = .data[[terms[2]]],
-                             fill = .data[[terms[2]]])
-  } else {
-    plot_aes <- ggplot2::aes(x = .data[[terms[1]]],
-                             y = .data[["predicted"]],
-                             ymin = .data[["conf.low"]],
-                             ymax = .data[["conf.high"]])
+    plot_aes[[2]] <- ggplot2::aes(group = .data[[terms[2]]],
+                                  color = .data[[terms[2]]],
+                                  fill = .data[[terms[2]]])
+  }
+
+  if (!is.null(mapping)) {
+    plot_aes[[3]] <- mapping
   }
 
   # Facets ----
@@ -56,8 +58,7 @@ autoplot.ggeffects <- function(object,
   # Assemble ----
   ggplot2::ggplot(data = object) +
     plot_aes +
-    ggplot2::facet_grid(rows = rows, cols = cols, ...) +
-    mapping
+    ggplot2::facet_grid(rows = rows, cols = cols, ...)
 }
 
 
