@@ -77,7 +77,7 @@ autoplot(
 Here is another example, with a continuous variable on x:
 
 ``` r
-gge <- ggpredict(fit, c("disp [all]", "hp", "am"))
+gge <- ggpredict(fit, c("disp [all]", "hp [meansd]", "am"))
 
 autoplot(
   gge,
@@ -96,15 +96,16 @@ autoplot(
 ![](README_files/figure-gfm/custom2-1.png)<!-- -->
 
 ``` r
+hp_breaks <- setNames(as.numeric(levels(gge$group)), c("-sd", "mean", "+sd"))
+
 (p <- autoplot(gge, labeller = labeller(am = as_labeller(c("0" = "Automatic", "1" = "Manual")))) +
     # Expected + CI
     geom_CI_ribbon() +
     geom_expected_line() +
     # Scales and theme
-    scale_color_binned("Horsepower", 
-                       n.breaks = 10,
-                       type = "viridis",  option = "C", end = 0.8, 
-                       aesthetics = c("color", "fill")) +
+    scale_color_viridis_c("Horsepower", breaks = hp_breaks,
+                          limits = c(50, 330),
+                          aesthetics = c("color", "fill")) +
     theme_bw() +
     labs(y = "Miles/Gallon", x = "Displacement"))
 ```
@@ -152,7 +153,10 @@ These can also be used with other stats:
 ``` r
 gge <- ggpredict(fit, terms = c("disp [100:500, by = 70]", "cyl"))
 
-autoplot(gge, cols = vars(cyl),
+autoplot(gge, 
+         aes(color = as.numeric(as.character(cyl)),
+             fill = as.numeric(as.character(cyl))),
+         cols = vars(cyl),
          labeller = labeller(cyl = as_labeller(c("4" = "Cyl: 4", "6" = 6, "8" = 8)))) + 
   # Expected + CI
   geom_CI_ribbon() + 
@@ -163,7 +167,9 @@ autoplot(gge, cols = vars(cyl),
                  fill = NA, color = "black",
                  geom = "boxplot", stat = "boxplot") + # <<<<
   # Scales and theme
-  scale_color_viridis_d("No. Cylinders", end = 0.5, aesthetics = c("color", "fill")) + 
+  scale_color_binned("No. Cylinders", aesthetics = c("color", "fill"),
+                     type = "viridis",
+                     guide = guide_colorsteps(show.limits = TRUE)) +
   labs(y = "Miles/Gallon", x = "Displacement") + 
   theme_ggeffects()
 ```
