@@ -29,13 +29,13 @@ remotes::install_github("mattansb/ggggeffects")
 Fit a model from the `mtcars` data:
 
 ``` r
-fit <- lm(mpg ~ factor(cyl) + am + disp + hp, mtcars)
+fit <- lm(mpg ~ factor(carb) + am + disp + hp, mtcars)
 ```
 
 ### Full `ggplot2` Customizability
 
 ``` r
-gge <- ggpredict(fit, terms = c("cyl", "am"))
+gge <- ggpredict(fit, terms = c("carb", "am"))
 
 # Compare
 plot(gge)
@@ -57,11 +57,13 @@ however `ggggeffects` is fully customisable, as would be expected (also
 note that the `am` is retained as a numeric variable):
 
 ``` r
+am_labeller <- as_labeller(c("0" = "Automatic", "1" = "Manual"))
+
 autoplot(
   gge, 
   aes(color = factor(am), fill = after_scale(color)),
   cols = vars(am), 
-  labeller = labeller(am = as_labeller(c("0" = "Automatic", "1" = "Manual")))
+  labeller = labeller(am = am_labeller)
 ) +
   # Expected + CI
   geom_CI_bar(type = "linerange", color = "black", position = position_dodge(0.3)) +
@@ -151,25 +153,26 @@ p +
 These can also be used with other stats:
 
 ``` r
-gge <- ggpredict(fit, terms = c("disp [100:500, by = 70]", "cyl"))
+gge <- ggpredict(fit, terms = c("disp [100:500, by = 70]", "carb"))
 
 autoplot(gge, 
-         aes(color = as.numeric(as.character(cyl)),
-             fill = as.numeric(as.character(cyl))),
-         cols = vars(cyl),
-         labeller = labeller(cyl = as_labeller(c("4" = "Cyl: 4", "6" = 6, "8" = 8)))) + 
+         aes(color = as.numeric(levels(carb))[carb],
+             fill = as.numeric(levels(carb))[carb])) + 
+  facet_wrap(vars(carb)) + 
   # Expected + CI
   geom_CI_ribbon() + 
   geom_expected_line() +
   # Boxplot of partial residuals
-  layer_fit_data(aes(group = interaction(disp, cyl)), 
+  layer_fit_data(aes(group = interaction(disp, carb)), 
                  residuals = TRUE,
                  fill = NA, color = "black",
                  geom = "boxplot", stat = "boxplot") + # <<<<
   # Scales and theme
-  scale_color_binned("No. Cylinders", aesthetics = c("color", "fill"),
-                     type = "viridis",
-                     guide = guide_colorsteps(show.limits = TRUE)) +
+  scale_color_binned("No. Carburetors", aesthetics = c("color", "fill"),
+                     breaks = unique(mtcars$carb),
+                     limits = c(0.5, 8.5),
+                     type = "viridis", option = "B", begin = 0.1,
+                     guide = guide_colorsteps(even.steps = FALSE)) +
   labs(y = "Miles/Gallon", x = "Displacement") + 
   theme_ggeffects()
 ```
